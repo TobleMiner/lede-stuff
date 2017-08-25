@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Designed to switch over WAN connectivity to a mobile tethering device as soon
+# as it is plugged into a usb port on the router
+
+MODPATH="/sys/$DEVPATH/device/driver"
+
+MODULE="$(basename `readlink "$MODPATH"`)"
+
+if [ `echo "$DEVICENAME" | grep ^usb` ]; then
+	# We do probably have a usb ethernet device
+	if [[ $ACTION == add ]]; then
+		# Check if we really have a tethering device
+		case "$MODULE" in 
+			rndis_host)
+				uci add_list network.wan.ifname="$INTERFACE"
+				uci commit network
+		esac
+	fi
+	if [[ $ACTION == remove ]]; then
+		uci del_list network.wan.ifname="$INTERFACE"
+		uci commit network
+	fi
+fi

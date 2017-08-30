@@ -11,10 +11,12 @@ if [ `echo "$DEVICENAME" | grep ^usb` ]; then
 	# We do probably have a usb ethernet device
 	if [[ $ACTION == add ]]; then
 		# Check if we really have a tethering device
-		case "$MODULE" in 
+		case "$MODULE" in
 			rndis_host)
+				logger -t lte-failover 'Tethering device detected, LTE failover enabled'
 				uci add_list network.wan.ifname="$INTERFACE"
 				uci commit network
+				ifup wan
 		esac
 	fi
 	if [[ $ACTION == remove ]]; then
